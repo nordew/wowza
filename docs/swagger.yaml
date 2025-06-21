@@ -1,0 +1,163 @@
+basePath: /
+definitions:
+  dto.CreateUserRequest:
+    properties:
+      email:
+        type: string
+      fullName:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      profileName:
+        type: string
+    type: object
+  dto.SignUpInitRequest:
+    properties:
+      phone:
+        type: string
+    required:
+    - phone
+    type: object
+  dto.SignUpVerifyRequest:
+    properties:
+      code:
+        maxLength: 6
+        minLength: 6
+        type: string
+      phone:
+        type: string
+    required:
+    - code
+    - phone
+    type: object
+  entity.User:
+    properties:
+      blocked:
+        type: boolean
+      createdAt:
+        type: string
+      email:
+        type: string
+      fullName:
+        type: string
+      id:
+        type: string
+      imageURL:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      profileName:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: This is a sample server for a Wowza API.
+  title: Wowza API
+  version: "1.0"
+paths:
+  /api/v1/auth/sign-up/complete:
+    post:
+      consumes:
+      - application/json
+      description: Completes a new user registration
+      parameters:
+      - description: Sign Up Complete
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: SignUp Complete
+      tags:
+      - auth
+  /api/v1/auth/sign-up/init:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user
+      parameters:
+      - description: Sign Up Init
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SignUpInitRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: SignUp Init
+      tags:
+      - auth
+  /api/v1/auth/sign-up/verify:
+    post:
+      consumes:
+      - application/json
+      description: Verifies a new user
+      parameters:
+      - description: Sign Up Verify
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SignUpVerifyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: SignUp Verify
+      tags:
+      - auth
+swagger: "2.0"

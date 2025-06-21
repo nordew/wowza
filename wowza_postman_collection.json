@@ -1,0 +1,113 @@
+{
+	"info": {
+		"_postman_id": "c1f7f4e4-a1e4-4a5e-8f2a-2e1e1e1e1e1e",
+		"name": "Wowza API",
+		"description": "A collection of requests for the Wowza API.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Sign-Up Init",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"phone\": \"+15551234567\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/sign-up/init",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "sign-up", "init"]
+						},
+						"description": "Initiates the user sign-up process by sending a verification code to the provided phone number."
+					},
+					"response": []
+				},
+				{
+					"name": "Sign-Up Verify",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"phone\": \"+15551234567\",\n    \"code\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/sign-up/verify",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "sign-up", "verify"]
+						},
+						"description": "Verifies the sign-up code sent to the user's phone."
+					},
+					"response": []
+				},
+				{
+					"name": "Sign-Up Complete",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profile_name\": \"testuser\",\n    \"full_name\": \"Test User\",\n    \"email\": \"test@example.com\",\n    \"phone\": \"+15551234567\",\n    \"password\": \"strongpassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/sign-up/complete",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "sign-up", "complete"]
+						},
+						"description": "Completes the user registration process."
+					},
+					"response": []
+				},
+				{
+					"name": "Sign-In",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"phone\": \"+15551234567\",\n    \"password\": \"strongpassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/sign-in",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "sign-in"]
+						},
+						"description": "Logs in a user and returns an access token."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080"
+		}
+	]
+}

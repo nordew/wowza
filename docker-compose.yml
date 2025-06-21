@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: wowza_postgres_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - '${POSTGRES_PORT}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  dragonfly:
+    image: docker.dragonflydb.io/dragonflydb/dragonfly
+    container_name: wowza_dragonfly_db
+    command: --alsologtostderr
+    ports:
+      - '${DRAGONFLY_PORT}:6379'
+    volumes:
+      - dragonfly_data:/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  dragonfly_data:
