@@ -25,6 +25,28 @@ func (s *Storage) CreateUser(ctx context.Context, user *entity.User) error {
 	return nil
 }
 
+func (s *Storage) CreateUserWithWallet(
+	ctx context.Context,
+	user *entity.User,
+	wallet *entity.Wallet,
+) error {
+	if err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(user).Error; err != nil {
+			return errx.NewInternal().WithDescriptionAndCause("failed to create user", err)
+		}
+
+		if err := tx.Create(wallet).Error; err != nil {
+			return errx.NewInternal().WithDescriptionAndCause("failed to create wallet", err)
+		}
+
+		return nil
+	}); err != nil {
+		return errx.NewInternal().WithDescriptionAndCause("failed to create user with wallet", err)
+	}
+
+	return nil
+}
+
 func (s *Storage) GetUserByFilter(ctx context.Context, filter UserFilter) (*entity.User, error) {
 	var user entity.User
 

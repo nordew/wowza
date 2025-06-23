@@ -18,6 +18,7 @@ import (
 
 	"wowza/pkg/db/dragonfly"
 	postgres "wowza/pkg/db/postgres"
+	"wowza/pkg/generator"
 	"wowza/pkg/hash"
 	"wowza/pkg/logger"
 	"wowza/pkg/paseto"
@@ -51,10 +52,21 @@ func Run() {
 	cache := cache.New(dfly)
 	passwordHasher := hash.New()
 	pasetoManager := paseto.NewManager([]byte(cfg.Paseto.SymmetricKey))
+	generator := generator.New()
+	service := service.NewService(
+		storage,
+		zapLogger,
+		passwordHasher,
+		pasetoManager,
+		cache,
+		generator,
+	)
 
-	service := service.NewService(storage, zapLogger, passwordHasher, pasetoManager, cache)
-
-	handler := httpHandler.NewHandler(zapLogger, service, cfg.App.DBTimeout)
+	handler := httpHandler.NewHandler(
+		zapLogger,
+		service,
+		cfg.App.DBTimeout,
+	)
 	server := handler.InitRoutes()
 
 	go func() {

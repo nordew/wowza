@@ -6,6 +6,14 @@ import (
 	"io"
 )
 
+type Generator struct {
+	
+}
+
+func New() *Generator {
+	return &Generator{}
+}
+
 type CharType int
 
 const (
@@ -20,7 +28,7 @@ var (
 	mixed   = append(numbers, letters...)
 )
 
-func GenerateCode(size int, charType CharType) (string, error) {
+func (g *Generator) GenerateCode(size int, charType CharType) (string, error) {
 	var table []byte
 	switch charType {
 	case NumbersOnly:

@@ -9,14 +9,19 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	initialWalletBalance = 0
+	initialWalletCurrency = "USD"
+)
+
 func (s *Service) CreateUser(ctx context.Context, req dto.CreateUserRequest) (*entity.User, error) {
-	user, err := s.newUser(req)
+	user, wallet, err := s.newUserWithWallet(req)
 	if err != nil {
 		s.logger.Error("failed to create user", zap.Error(err))
 		return nil, err
 	}
 
-	if err := s.storage.CreateUser(ctx, user); err != nil {
+	if err := s.storage.CreateUserWithWallet(ctx, user, wallet); err != nil {
 		s.logger.Error("failed to create user", zap.Error(err))
 		return nil, err
 	}
@@ -24,11 +29,12 @@ func (s *Service) CreateUser(ctx context.Context, req dto.CreateUserRequest) (*e
 	return user, nil
 }
 
-func (s *Service) newUser(req dto.CreateUserRequest) (*entity.User, error) {
-	id := uuid.New().String()
+func (s *Service) newUserWithWallet(req dto.CreateUserRequest) (*entity.User, *entity.Wallet, error) {
+	userID := uuid.New().String()
+	walletID := uuid.New().String()
 
 	user, err := entity.NewUser(
-		id,
+		userID,
 		req.ProfileName,
 		req.FullName,
 		req.Email,
@@ -36,15 +42,25 @@ func (s *Service) newUser(req dto.CreateUserRequest) (*entity.User, error) {
 		req.Password,
 	)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
+	}
+
+	wallet, err := entity.NewWallet(
+		walletID,
+		userID,
+		initialWalletBalance,
+		initialWalletCurrency,
+	)
+	if err != nil {
+		return nil, nil, err
 	}
 
 	hashedPassword, err := s.passwordHasher.HashPassword(req.Password)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	user.Password = hashedPassword
 
-	return user, nil
+	return user, wallet, nil
 }

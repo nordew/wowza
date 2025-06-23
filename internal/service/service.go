@@ -12,6 +12,7 @@ import (
 
 type Storage interface {
 	CreateUser(ctx context.Context, user *entity.User) error
+	CreateUserWithWallet(ctx context.Context, user *entity.User, wallet *entity.Wallet) error
 	GetUserByFilter(ctx context.Context, filter storage.UserFilter) (*entity.User, error)
 	UpdateUser(ctx context.Context, user *entity.User) error
 	DeleteUser(ctx context.Context, id string) error
