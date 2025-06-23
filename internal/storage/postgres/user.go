@@ -2,9 +2,11 @@ package storage
 
 import (
 	"context"
+	"errors"
 	"wowza/internal/entity"
 
 	"github.com/nordew/go-errx"
+	"gorm.io/gorm"
 )
 
 type UserFilter struct {
@@ -27,6 +29,10 @@ func (s *Storage) GetUserByFilter(ctx context.Context, filter UserFilter) (*enti
 	var user entity.User
 
 	if err := s.db.WithContext(ctx).Where(filter).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errx.NewNotFound().WithDescription("user not found")
+		}
+
 		return nil, errx.NewInternal().WithDescriptionAndCause("failed to get user by filter", err)
 	}
 

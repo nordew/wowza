@@ -13,6 +13,42 @@ definitions:
       profileName:
         type: string
     type: object
+  dto.ResetPasswordConfirmCompleteRequest:
+    properties:
+      code:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  dto.ResetPasswordConfirmRequest:
+    properties:
+      code:
+        type: string
+      email:
+        type: string
+    type: object
+  dto.ResetPasswordRequest:
+    properties:
+      email:
+        type: string
+    type: object
+  dto.SignInRequest:
+    properties:
+      password:
+        type: string
+      phone:
+        type: string
+    required:
+    - password
+    - phone
+    type: object
+  dto.SignInResponse:
+    properties:
+      accessToken:
+        type: string
+    type: object
   dto.SignUpInitRequest:
     properties:
       phone:
@@ -32,29 +68,6 @@ definitions:
     - code
     - phone
     type: object
-  entity.User:
-    properties:
-      blocked:
-        type: boolean
-      createdAt:
-        type: string
-      email:
-        type: string
-      fullName:
-        type: string
-      id:
-        type: string
-      imageURL:
-        type: string
-      password:
-        type: string
-      phone:
-        type: string
-      profileName:
-        type: string
-      updatedAt:
-        type: string
-    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -62,6 +75,46 @@ info:
   title: Wowza API
   version: "1.0"
 paths:
+  /api/v1/auth/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: Logs a user in
+      parameters:
+      - description: Sign In
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SignInRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SignInResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: SignIn
+      tags:
+      - auth
   /api/v1/auth/sign-up/complete:
     post:
       consumes:
@@ -79,8 +132,6 @@ paths:
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/entity.User'
         "400":
           description: Bad Request
           schema:
@@ -160,4 +211,103 @@ paths:
       summary: SignUp Verify
       tags:
       - auth
+  /api/v1/password/reset:
+    post:
+      consumes:
+      - application/json
+      description: Initiates the password reset process for a user.
+      parameters:
+      - description: User's email
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ResetPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Reset password
+      tags:
+      - password
+  /api/v1/password/reset/complete:
+    post:
+      consumes:
+      - application/json
+      description: Completes the password reset process by setting a new password.
+      parameters:
+      - description: New password and token
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ResetPasswordConfirmCompleteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Complete password reset
+      tags:
+      - password
+  /api/v1/password/reset/confirm:
+    post:
+      consumes:
+      - application/json
+      description: Confirms the password reset using a token sent to the user's email.
+      parameters:
+      - description: Reset token
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ResetPasswordConfirmRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Confirm password reset
+      tags:
+      - password
 swagger: "2.0"

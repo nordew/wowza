@@ -25,6 +25,11 @@ type Service interface {
 
 	// User
 	CreateUser(ctx context.Context, req dto.CreateUserRequest) (*entity.User, error)
+
+	// Password
+	ResetPassword(ctx context.Context, req dto.ResetPasswordRequest) error
+	ResetPasswordConfirm(ctx context.Context, req dto.ResetPasswordConfirmRequest) error
+	ResetPasswordConfirmComplete(ctx context.Context, req dto.ResetPasswordConfirmCompleteRequest) error
 }
 
 var errxCodeToHTTPStatus = map[errx.Code]int{
@@ -74,6 +79,7 @@ func (h *Handler) initAPI(router *fiber.App) {
 	api := router.Group("/api/v1")
 	{
 		h.initAuthRoutes(api)
+		h.initPasswordRoutes(api)
 	}
 }
 

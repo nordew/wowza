@@ -102,6 +102,80 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Password",
+			"item": [
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/password/reset",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "password", "reset"]
+						},
+						"description": "Initiates the password reset process for a user."
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password Confirm",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@example.com\",\n    \"code\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/password/reset/confirm",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "password", "reset", "confirm"]
+						},
+						"description": "Confirms the password reset using a token sent to the user's email."
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password Complete",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@example.com\",\n    \"code\": \"123456\",\n    \"password\": \"newstrongpassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/password/reset/complete",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "password", "reset", "complete"]
+						},
+						"description": "Completes the password reset process by setting a new password."
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"variable": [

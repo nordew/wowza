@@ -5,6 +5,7 @@ import (
 	"time"
 	"wowza/internal/entity"
 	storage "wowza/internal/storage/postgres"
+	"wowza/pkg/generator"
 
 	"go.uber.org/zap"
 )
@@ -32,12 +33,17 @@ type Cache interface {
 	Delete(ctx context.Context, key string) error
 }
 
+type Generator interface {
+	GenerateCode(size int, charType generator.CharType) (string, error)
+}
+
 type Service struct {
 	storage Storage
 	logger  *zap.Logger
 	passwordHasher PasswordHasher
 	pasetoManager PasetoManager
 	cache Cache
+	generator Generator
 }
 
 func NewService(
@@ -46,6 +52,7 @@ func NewService(
 	passwordHasher PasswordHasher,
 	pasetoManager PasetoManager,
 	cache Cache,
+	generator Generator,
 ) *Service {
 	return &Service{
 		storage: storage,
@@ -53,5 +60,6 @@ func NewService(
 		passwordHasher: passwordHasher,
 		pasetoManager: pasetoManager,
 		cache: cache,
+		generator: generator,
 	}
 }

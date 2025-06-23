@@ -2,13 +2,12 @@ package service
 
 import (
 	"context"
-	"crypto/rand"
 	"errors"
 	"fmt"
-	"io"
 	"time"
 	"wowza/internal/dto"
 	storage "wowza/internal/storage/postgres"
+	"wowza/pkg/generator"
 
 	"github.com/nordew/go-errx"
 	"go.uber.org/zap"
@@ -32,7 +31,7 @@ func (s *Service) SignUpInit(ctx context.Context, req dto.SignUpInitRequest) err
 		return err
 	}
 
-	code, err := generateVerificationCode(verificationCodeLength)
+	code, err := s.generator.GenerateCode(verificationCodeLength, generator.NumbersOnly)
 	if err != nil {
 		s.logger.Error("failed to generate verification code", zap.Error(err))
 		return errx.NewInternal().WithDescription("failed to generate verification code")
@@ -110,23 +109,6 @@ func (s *Service) SignUpVerify(ctx context.Context, req dto.SignUpVerifyRequest)
 	}()
 
 	return nil
-}
-
-func generateVerificationCode(length int) (string, error) {
-	if length <= 0 {
-		return "", fmt.Errorf("length must be positive")
-	}
-
-	digits := make([]byte, length)
-	if _, err := io.ReadFull(rand.Reader, digits); err != nil {
-		return "", fmt.Errorf("failed to read random bytes: %w", err)
-	}
-
-	for i := 0; i < length; i++ {
-		digits[i] = (digits[i] % 10) + '0'
-	}
-
-	return string(digits), nil
 }
 
 func verificationCodeKey(phone string) string {
