@@ -39,12 +39,12 @@ type Generator interface {
 }
 
 type Service struct {
-	storage Storage
-	logger  *zap.Logger
+	storage        Storage
+	logger         *zap.Logger
 	passwordHasher PasswordHasher
-	pasetoManager PasetoManager
-	cache Cache
-	generator Generator
+	pasetoManager  PasetoManager
+	cache          Cache
+	generator      Generator
 }
 
 func NewService(
@@ -56,11 +56,11 @@ func NewService(
 	generator Generator,
 ) *Service {
 	return &Service{
-		storage: storage,
-		logger: logger,
+		storage:        storage,
+		logger:         logger,
 		passwordHasher: passwordHasher,
-		pasetoManager: pasetoManager,
-		cache: cache,
-		generator: generator,
+		pasetoManager:  pasetoManager,
+		cache:          cache,
+		generator:      generator,
 	}
 }

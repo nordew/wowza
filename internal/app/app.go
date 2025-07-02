@@ -17,6 +17,7 @@ import (
 	storage "wowza/internal/storage/postgres"
 
 	"wowza/pkg/db/dragonfly"
+	"wowza/pkg/db/minio"
 	postgres "wowza/pkg/db/postgres"
 	"wowza/pkg/generator"
 	"wowza/pkg/hash"
@@ -46,6 +47,11 @@ func Run() {
 	dfly, err := dragonfly.DragonflyConnect(context.Background(), cfg.Dragonfly)
 	if err != nil {
 		zapLogger.Fatal("failed to connect to dragonfly", zap.Error(err))
+	}
+
+	_, err = minio.New(cfg.Minio)
+	if err != nil {
+		zapLogger.Fatal("failed to connect to minio", zap.Error(err))
 	}
 
 	storage := storage.New(pgsql)

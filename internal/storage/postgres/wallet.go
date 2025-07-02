@@ -8,7 +8,7 @@ import (
 )
 
 type GetWalletFilter struct {
-	ID string
+	ID     string
 	UserID string
 }
 

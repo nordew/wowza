@@ -10,6 +10,7 @@ type Config struct {
 	Dragonfly Dragonfly
 	Server    Server
 	Paseto    Paseto
+	Minio     Minio
 }
 
 type App struct {
@@ -41,3 +42,10 @@ type Paseto struct {
 	SymmetricKey string `env:"PASETO_SYMMETRIC_KEY" env-required:"true"`
 }
 
+type Minio struct {
+	Endpoint        string `env:"MINIO_ENDPOINT"`
+	AccessKeyID     string `env:"MINIO_ROOT_USER"`
+	SecretAccessKey string `env:"MINIO_ROOT_PASSWORD"`
+	UseSSL          bool   `env:"MINIO_USE_SSL"`
+	BucketName      string `env:"MINIO_BUCKET_NAME"`
+}

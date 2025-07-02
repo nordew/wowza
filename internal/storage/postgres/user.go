@@ -10,7 +10,7 @@ import (
 )
 
 type UserFilter struct {
-	ID        string
+	ID          string
 	ProfileName string
 	FullName    string
 	Email       string
