@@ -1,11 +1,38 @@
-package storage
+package postgres
 
-import "gorm.io/gorm"
+import (
+	"wowza/internal/entity"
 
-type Storage struct {
-	db *gorm.DB
+	"gorm.io/gorm"
+)
+
+type User interface {
+	Create(user *entity.User) error
+	CreateWithWallet(user *entity.User, wallet *entity.Wallet) error
+	GetByFilter(filter UserFilter) (*entity.User, error)
+	Update(user *entity.User) error
+	Delete(id string) error
 }
 
-func New(db *gorm.DB) *Storage {
-	return &Storage{db: db}
+type Post interface {
+	Create(post *entity.Post) error
 }
+
+type Wallet interface {
+	GetByUserID(userID string) (*entity.Wallet, error)
+	Update(wallet *entity.Wallet) error
+}
+
+type Storages struct {
+	User   User
+	Post   Post
+	Wallet Wallet
+}
+
+func NewStorages(db *gorm.DB) *Storages {
+	return &Storages{
+		User:   NewUserStorage(db),
+		Post:   NewPostStorage(db),
+		Wallet: NewWalletStorage(db),
+	}
+} 

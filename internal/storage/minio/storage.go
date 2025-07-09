@@ -1,29 +1,35 @@
-package storage
+package minio
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"time"
+	"wowza/internal/config"
 	"wowza/internal/dto"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/nordew/go-errx"
 )
 
-type Storage struct {
+type FileStorage struct {
 	client     *minio.Client
 	bucketName string
+	endpoint   string
+	useSSL     bool
 }
 
-func New(client *minio.Client, bucketName string) *Storage {
-	return &Storage{
+func NewFileStorage(client *minio.Client, cfg config.Minio) *FileStorage {
+	return &FileStorage{
 		client:     client,
-		bucketName: bucketName,
+		bucketName: cfg.BucketName,
+		endpoint:   cfg.Endpoint,
+		useSSL:     cfg.UseSSL,
 	}
 }
 
-func (s *Storage) UploadFile(ctx context.Context, req dto.UploadFileRequest) (minio.UploadInfo, error) {
-	info, err := s.client.PutObject(
+func (s *FileStorage) UploadFile(ctx context.Context, req dto.UploadFileRequest) error {
+	_, err := s.client.PutObject(
 		ctx,
 		s.bucketName,
 		req.Name,
@@ -34,13 +40,13 @@ func (s *Storage) UploadFile(ctx context.Context, req dto.UploadFileRequest) (mi
 		},
 	)
 	if err != nil {
-		return info, errx.NewInternal().WithDescriptionAndCause("failed to upload file", err)
+		return errx.NewInternal().WithDescriptionAndCause("failed to upload file", err)
 	}
 
-	return info, nil
+	return nil
 }
 
-func (s *Storage) GetFilePresignedURL(
+func (s *FileStorage) GetFilePresignedURL(
 	ctx context.Context,
 	objectName string,
 	expiry time.Duration,
@@ -59,7 +65,7 @@ func (s *Storage) GetFilePresignedURL(
 	return presignedURL, nil
 }
 
-func (s *Storage) DeleteFile(ctx context.Context, objectName string) error {
+func (s *FileStorage) DeleteFile(ctx context.Context, objectName string) error {
 	err := s.client.RemoveObject(
 		ctx,
 		s.bucketName,
@@ -73,7 +79,7 @@ func (s *Storage) DeleteFile(ctx context.Context, objectName string) error {
 	return nil
 }
 
-func (s *Storage) GetFileInfo(
+func (s *FileStorage) GetFileInfo(
 	ctx context.Context,
 	objectName string,
 ) (minio.ObjectInfo, error) {
@@ -88,4 +94,12 @@ func (s *Storage) GetFileInfo(
 	}
 
 	return info, nil
+}
+
+func (s *FileStorage) GetFilePublicURL(objectName string) string {
+	scheme := "http"
+	if s.useSSL {
+		scheme = "https"
+	}
+	return fmt.Sprintf("%s://%s/%s/%s", scheme, s.endpoint, s.bucketName, objectName)
 }

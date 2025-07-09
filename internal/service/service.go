@@ -3,19 +3,34 @@ package service
 import (
 	"context"
 	"time"
+	"wowza/internal/dto"
 	"wowza/internal/entity"
-	storage "wowza/internal/storage/postgres"
+	"wowza/internal/storage/postgres"
 	"wowza/pkg/generator"
 
 	"go.uber.org/zap"
 )
 
-type Storage interface {
-	CreateUser(ctx context.Context, user *entity.User) error
-	CreateUserWithWallet(ctx context.Context, user *entity.User, wallet *entity.Wallet) error
-	GetUserByFilter(ctx context.Context, filter storage.UserFilter) (*entity.User, error)
-	UpdateUser(ctx context.Context, user *entity.User) error
-	DeleteUser(ctx context.Context, id string) error
+type UserStorage interface {
+	Create(user *entity.User) error
+	CreateWithWallet(user *entity.User, wallet *entity.Wallet) error
+	GetByFilter(filter postgres.UserFilter) (*entity.User, error)
+	Update(user *entity.User) error
+	Delete(id string) error
+}
+
+type PostStorage interface {
+	Create(post *entity.Post) error
+}
+
+type WalletStorage interface {
+	GetByUserID(userID string) (*entity.Wallet, error)
+	Update(wallet *entity.Wallet) error
+}
+
+type FileStorage interface {
+	UploadFile(ctx context.Context, req dto.UploadFileRequest) error
+	GetFilePublicURL(objectName string) string
 }
 
 type PasswordHasher interface {
@@ -39,28 +54,37 @@ type Generator interface {
 }
 
 type Service struct {
-	storage        Storage
+	userStorage    UserStorage
+	postStorage    PostStorage
+	walletStorage  WalletStorage
 	logger         *zap.Logger
 	passwordHasher PasswordHasher
 	pasetoManager  PasetoManager
 	cache          Cache
 	generator      Generator
+	fileStorage    FileStorage
 }
 
 func NewService(
-	storage Storage,
+	userStorage UserStorage,
+	postStorage PostStorage,
+	walletStorage WalletStorage,
 	logger *zap.Logger,
 	passwordHasher PasswordHasher,
 	pasetoManager PasetoManager,
 	cache Cache,
 	generator Generator,
+	fileStorage FileStorage,
 ) *Service {
 	return &Service{
-		storage:        storage,
+		userStorage:    userStorage,
+		postStorage:    postStorage,
+		walletStorage:  walletStorage,
 		logger:         logger,
 		passwordHasher: passwordHasher,
 		pasetoManager:  pasetoManager,
 		cache:          cache,
 		generator:      generator,
+		fileStorage:    fileStorage,
 	}
 }

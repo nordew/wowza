@@ -30,6 +30,9 @@ type Service interface {
 	ResetPassword(ctx context.Context, req dto.ResetPasswordRequest) error
 	ResetPasswordConfirm(ctx context.Context, req dto.ResetPasswordConfirmRequest) error
 	ResetPasswordConfirmComplete(ctx context.Context, req dto.ResetPasswordConfirmCompleteRequest) error
+
+	// Post
+	CreatePost(ctx context.Context, req *dto.CreatePostRequest) error
 }
 
 var errxCodeToHTTPStatus = map[errx.Code]int{
@@ -45,8 +48,8 @@ var errxCodeToHTTPStatus = map[errx.Code]int{
 }
 
 type Handler struct {
-	logger  *zap.Logger
-	service Service
+	logger     *zap.Logger
+	service    Service
 	ctxTimeout time.Duration
 }
 
@@ -56,8 +59,8 @@ func NewHandler(
 	ctxTimeout time.Duration,
 ) *Handler {
 	return &Handler{
-		logger:  logger,
-		service: service,
+		logger:     logger,
+		service:    service,
 		ctxTimeout: ctxTimeout,
 	}
 }
@@ -80,6 +83,7 @@ func (h *Handler) initAPI(router *fiber.App) {
 	{
 		h.initAuthRoutes(api)
 		h.initPasswordRoutes(api)
+		h.initPostRoutes(api)
 	}
 }
 

@@ -1,46 +1,38 @@
-package storage
+package postgres
 
 import (
-	"context"
+	"errors"
 	"wowza/internal/entity"
 
 	"github.com/nordew/go-errx"
+	"gorm.io/gorm"
 )
 
-type GetWalletFilter struct {
-	ID     string
-	UserID string
+type WalletStorage struct {
+	db *gorm.DB
 }
 
-func (s *Storage) CreateWallet(ctx context.Context, wallet *entity.Wallet) error {
-	if err := s.db.WithContext(ctx).Create(wallet).Error; err != nil {
-		return errx.NewInternal().WithDescriptionAndCause("failed to create wallet", err)
-	}
-
-	return nil
+func NewWalletStorage(db *gorm.DB) *WalletStorage {
+	return &WalletStorage{db: db}
 }
 
-func (s *Storage) GetWalletByFilter(ctx context.Context, filter GetWalletFilter) (*entity.Wallet, error) {
+func (s *WalletStorage) GetByUserID(userID string) (*entity.Wallet, error) {
 	var wallet entity.Wallet
 
-	if err := s.db.WithContext(ctx).Where(filter).First(&wallet).Error; err != nil {
-		return nil, errx.NewNotFound().WithDescription("wallet not found")
+	if err := s.db.Where("user_id = ?", userID).First(&wallet).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errx.NewNotFound().WithDescription("wallet not found")
+		}
+
+		return nil, errx.NewInternal().WithDescription("failed to get wallet by user id")
 	}
 
 	return &wallet, nil
 }
 
-func (s *Storage) UpdateWallet(ctx context.Context, wallet *entity.Wallet) error {
-	if err := s.db.WithContext(ctx).Save(wallet).Error; err != nil {
-		return errx.NewInternal().WithDescriptionAndCause("failed to update wallet", err)
-	}
-
-	return nil
-}
-
-func (s *Storage) DeleteWallet(ctx context.Context, id string) error {
-	if err := s.db.WithContext(ctx).Delete(&entity.Wallet{}, id).Error; err != nil {
-		return errx.NewInternal().WithDescriptionAndCause("failed to delete wallet", err)
+func (s *WalletStorage) Update(wallet *entity.Wallet) error {
+	if err := s.db.Save(wallet).Error; err != nil {
+		return errx.NewInternal().WithDescription("failed to update wallet")
 	}
 
 	return nil

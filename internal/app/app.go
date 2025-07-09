@@ -14,6 +14,7 @@ import (
 	"wowza/internal/config"
 	httpHandler "wowza/internal/handler/http"
 	"wowza/internal/service"
+	minioStorage "wowza/internal/storage/minio"
 	storage "wowza/internal/storage/postgres"
 
 	"wowza/pkg/db/dragonfly"
@@ -49,23 +50,27 @@ func Run() {
 		zapLogger.Fatal("failed to connect to dragonfly", zap.Error(err))
 	}
 
-	_, err = minio.New(cfg.Minio)
-	if err != nil {
-		zapLogger.Fatal("failed to connect to minio", zap.Error(err))
-	}
-
-	storage := storage.New(pgsql)
+	storages := storage.NewStorages(pgsql)
 	cache := cache.New(dfly)
 	passwordHasher := hash.New()
 	pasetoManager := paseto.NewManager([]byte(cfg.Paseto.SymmetricKey))
 	generator := generator.New()
+	minioClient, err := minio.New(cfg.Minio)
+	if err != nil {
+		zapLogger.Fatal("failed to connect to minio", zap.Error(err))
+	}
+	fileStorage := minioStorage.NewFileStorage(minioClient, cfg.Minio)
+
 	service := service.NewService(
-		storage,
+		storages.User,
+		storages.Post,
+		storages.Wallet,
 		zapLogger,
 		passwordHasher,
 		pasetoManager,
 		cache,
 		generator,
+		fileStorage,
 	)
 
 	handler := httpHandler.NewHandler(

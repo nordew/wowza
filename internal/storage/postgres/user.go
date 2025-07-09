@@ -1,7 +1,6 @@
-package storage
+package postgres
 
 import (
-	"context"
 	"errors"
 	"wowza/internal/entity"
 
@@ -17,61 +16,68 @@ type UserFilter struct {
 	Phone       string
 }
 
-func (s *Storage) CreateUser(ctx context.Context, user *entity.User) error {
-	if err := s.db.WithContext(ctx).Create(user).Error; err != nil {
-		return errx.NewInternal().WithDescriptionAndCause("failed to create user", err)
+type UserStorage struct {
+	db *gorm.DB
+}
+
+func NewUserStorage(db *gorm.DB) *UserStorage {
+	return &UserStorage{db: db}
+}
+
+func (s *UserStorage) Create(user *entity.User) error {
+	if err := s.db.Create(user).Error; err != nil {
+		return errx.NewInternal().WithDescription("failed to create user")
 	}
 
 	return nil
 }
 
-func (s *Storage) CreateUserWithWallet(
-	ctx context.Context,
+func (s *UserStorage) CreateWithWallet(
 	user *entity.User,
 	wallet *entity.Wallet,
 ) error {
-	if err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	if err := s.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(user).Error; err != nil {
-			return errx.NewInternal().WithDescriptionAndCause("failed to create user", err)
+			return err
 		}
 
 		if err := tx.Create(wallet).Error; err != nil {
-			return errx.NewInternal().WithDescriptionAndCause("failed to create wallet", err)
+			return err
 		}
 
 		return nil
 	}); err != nil {
-		return errx.NewInternal().WithDescriptionAndCause("failed to create user with wallet", err)
+		return errx.NewInternal().WithDescription("failed to create user with wallet")
 	}
 
 	return nil
 }
 
-func (s *Storage) GetUserByFilter(ctx context.Context, filter UserFilter) (*entity.User, error) {
+func (s *UserStorage) GetByFilter(filter UserFilter) (*entity.User, error) {
 	var user entity.User
 
-	if err := s.db.WithContext(ctx).Where(filter).First(&user).Error; err != nil {
+	if err := s.db.Where(filter).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errx.NewNotFound().WithDescription("user not found")
 		}
 
-		return nil, errx.NewInternal().WithDescriptionAndCause("failed to get user by filter", err)
+		return nil, errx.NewInternal().WithDescription("failed to get user by filter")
 	}
 
 	return &user, nil
 }
 
-func (s *Storage) UpdateUser(ctx context.Context, user *entity.User) error {
-	if err := s.db.WithContext(ctx).Save(user).Error; err != nil {
-		return errx.NewInternal().WithDescriptionAndCause("failed to update user", err)
+func (s *UserStorage) Update(user *entity.User) error {
+	if err := s.db.Save(user).Error; err != nil {
+		return errx.NewInternal().WithDescription("failed to update user")
 	}
 
 	return nil
 }
 
-func (s *Storage) DeleteUser(ctx context.Context, id string) error {
-	if err := s.db.WithContext(ctx).Delete(&entity.User{}, id).Error; err != nil {
-		return errx.NewInternal().WithDescriptionAndCause("failed to delete user", err)
+func (s *UserStorage) Delete(id string) error {
+	if err := s.db.Delete(&entity.User{}, id).Error; err != nil {
+		return errx.NewInternal().WithDescription("failed to delete user")
 	}
 
 	return nil

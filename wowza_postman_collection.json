@@ -176,6 +176,75 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Posts",
+			"item": [
+				{
+					"name": "Create Post",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "video",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "user_id",
+									"value": "a-uuid-for-a-user",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Check out my new video!",
+									"type": "text"
+								},
+								{
+									"key": "duration",
+									"value": "30.5",
+									"type": "text"
+								},
+								{
+									"key": "visibility",
+									"value": "public",
+									"type": "text"
+								},
+								{
+									"key": "hashtags",
+									"value": "golang",
+									"type": "text"
+								},
+								{
+									"key": "hashtags",
+									"value": "fiber",
+									"type": "text"
+								},
+								{
+									"key": "tags",
+									"value": "development",
+									"type": "text"
+								},
+								{
+									"key": "allow_comments",
+									"value": "true",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/posts",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "posts"]
+						},
+						"description": "Creates a new post by uploading a video and associated metadata."
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"variable": [

@@ -21,7 +21,7 @@ func (s *Service) CreateUser(ctx context.Context, req dto.CreateUserRequest) (*e
 		return nil, err
 	}
 
-	if err := s.storage.CreateUserWithWallet(ctx, user, wallet); err != nil {
+	if err := s.userStorage.CreateWithWallet(user, wallet); err != nil {
 		s.logger.Error("failed to create user", zap.Error(err))
 		return nil, err
 	}
