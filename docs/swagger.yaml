@@ -2,10 +2,8 @@ basePath: /
 definitions:
   dto.BusinessResponse:
     properties:
-      categories:
-        items:
-          $ref: '#/definitions/dto.CategoryResponse'
-        type: array
+      category:
+        $ref: '#/definitions/dto.CategoryResponse'
       description:
         type: string
       id:
@@ -28,6 +26,8 @@ definitions:
     type: object
   dto.CreateBusinessRequest:
     properties:
+      categoryId:
+        type: string
       description:
         type: string
       location:
@@ -37,6 +37,7 @@ definitions:
       websiteUrl:
         type: string
     required:
+    - categoryId
     - name
     type: object
   dto.CreateUserRequest:
@@ -109,6 +110,8 @@ definitions:
     type: object
   dto.UpdateBusinessRequest:
     properties:
+      categoryId:
+        type: string
       description:
         type: string
       location:

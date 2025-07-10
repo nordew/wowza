@@ -721,11 +721,8 @@ const docTemplate = `{
         "dto.BusinessResponse": {
             "type": "object",
             "properties": {
-                "categories": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dto.CategoryResponse"
-                    }
+                "category": {
+                    "$ref": "#/definitions/dto.CategoryResponse"
                 },
                 "description": {
                     "type": "string"
@@ -761,9 +758,13 @@ const docTemplate = `{
         "dto.CreateBusinessRequest": {
             "type": "object",
             "required": [
+                "categoryId",
                 "name"
             ],
             "properties": {
+                "categoryId": {
+                    "type": "string"
+                },
                 "description": {
                     "type": "string"
                 },
@@ -885,6 +886,9 @@ const docTemplate = `{
         "dto.UpdateBusinessRequest": {
             "type": "object",
             "properties": {
+                "categoryId": {
+                    "type": "string"
+                },
                 "description": {
                     "type": "string"
                 },

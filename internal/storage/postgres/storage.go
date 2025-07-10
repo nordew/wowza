@@ -36,12 +36,30 @@ type Category interface {
 	GetAll(ctx context.Context) ([]entity.Category, error)
 }
 
+type Item interface {
+	Create(ctx context.Context, item *entity.Item) error
+	GetByID(ctx context.Context, id string) (*entity.Item, error)
+	Update(ctx context.Context, item *entity.Item) error
+	Delete(ctx context.Context, id string) error
+	GetByBusinessID(ctx context.Context, businessID string) ([]entity.Item, error)
+}
+
+type Review interface {
+	Create(ctx context.Context, review *entity.Review) error
+	GetByID(ctx context.Context, id string) (*entity.Review, error)
+	Update(ctx context.Context, review *entity.Review) error
+	Delete(ctx context.Context, id string) error
+	GetByItemID(ctx context.Context, itemID string) ([]entity.Review, error)
+}
+
 type Storages struct {
 	User     User
 	Post     Post
 	Wallet   Wallet
 	Business Business
 	Category Category
+	Item     Item
+	Review   Review
 }
 
 func NewStorages(db *gorm.DB) *Storages {
@@ -51,5 +69,7 @@ func NewStorages(db *gorm.DB) *Storages {
 		Wallet:   NewWalletStorage(db),
 		Business: NewBusinessStorage(db),
 		Category: NewCategoryStorage(db),
+		Item:     NewItemStorage(db),
+		Review:   NewReviewStorage(db),
 	}
 } 

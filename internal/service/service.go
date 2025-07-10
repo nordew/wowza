@@ -40,6 +40,22 @@ type CategoryStorage interface {
 	GetAll(ctx context.Context) ([]entity.Category, error)
 }
 
+type ItemStorage interface {
+	Create(ctx context.Context, item *entity.Item) error
+	GetByID(ctx context.Context, id string) (*entity.Item, error)
+	Update(ctx context.Context, item *entity.Item) error
+	Delete(ctx context.Context, id string) error
+	GetByBusinessID(ctx context.Context, businessID string) ([]entity.Item, error)
+}
+
+type ReviewStorage interface {
+	Create(ctx context.Context, review *entity.Review) error
+	GetByID(ctx context.Context, id string) (*entity.Review, error)
+	Update(ctx context.Context, review *entity.Review) error
+	Delete(ctx context.Context, id string) error
+	GetByItemID(ctx context.Context, itemID string) ([]entity.Review, error)
+}
+
 type FileStorage interface {
 	UploadFile(ctx context.Context, req dto.UploadFileRequest) error
 	GetFilePublicURL(objectName string) string
@@ -71,6 +87,8 @@ type Service struct {
 	walletStorage   WalletStorage
 	businessStorage BusinessStorage
 	categoryStorage CategoryStorage
+	itemStorage     ItemStorage
+	reviewStorage   ReviewStorage
 	logger          *zap.Logger
 	passwordHasher  PasswordHasher
 	pasetoManager   PasetoManager
@@ -85,6 +103,8 @@ func NewService(
 	walletStorage WalletStorage,
 	businessStorage BusinessStorage,
 	categoryStorage CategoryStorage,
+	itemStorage ItemStorage,
+	reviewStorage ReviewStorage,
 	logger *zap.Logger,
 	passwordHasher PasswordHasher,
 	pasetoManager PasetoManager,
@@ -98,6 +118,8 @@ func NewService(
 		walletStorage:   walletStorage,
 		businessStorage: businessStorage,
 		categoryStorage: categoryStorage,
+		itemStorage:     itemStorage,
+		reviewStorage:   reviewStorage,
 		logger:          logger,
 		passwordHasher:  passwordHasher,
 		pasetoManager:   pasetoManager,

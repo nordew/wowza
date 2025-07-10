@@ -42,6 +42,19 @@ type Service interface {
 
 	// Category
 	GetAllCategories(ctx context.Context) ([]dto.CategoryResponse, error)
+
+	// Item
+	CreateItem(ctx context.Context, req dto.CreateItemRequest) (*dto.ItemResponse, error)
+	GetItemByID(ctx context.Context, id string) (*dto.ItemResponse, error)
+	UpdateItem(ctx context.Context, id string, req dto.UpdateItemRequest) (*dto.ItemResponse, error)
+	DeleteItem(ctx context.Context, id string) error
+	GetItemsByBusinessID(ctx context.Context, businessID string) ([]dto.ItemResponse, error)
+
+	// Review
+	CreateReview(ctx context.Context, req dto.CreateReviewRequest) (*dto.ReviewResponse, error)
+	UpdateReview(ctx context.Context, id string, req dto.UpdateReviewRequest) (*dto.ReviewResponse, error)
+	DeleteReview(ctx context.Context, id string) error
+	GetReviewsByItemID(ctx context.Context, itemID string) ([]dto.ReviewResponse, error)
 }
 
 var errxCodeToHTTPStatus = map[errx.Code]int{
@@ -95,6 +108,8 @@ func (h *Handler) initAPI(router *fiber.App) {
 		h.initPostRoutes(api)
 		h.initBusinessRoutes(api)
 		h.initCategoryRoutes(api)
+		h.initItemRoutes(api)
+		h.initReviewRoutes(api)
 	}
 }
 
