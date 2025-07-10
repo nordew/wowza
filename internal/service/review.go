@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"wowza/internal/converter"
 	"wowza/internal/dto"
 	"wowza/internal/entity"
 
@@ -63,20 +64,7 @@ func (s *Service) GetReviewsByItemID(ctx context.Context, itemID string) ([]dto.
 		return nil, err
 	}
 
-	res := make([]dto.ReviewResponse, len(reviews))
-	for i, review := range reviews {
-		res[i] = dto.ReviewResponse{
-			ID:          review.ID,
-			UserID:      review.UserID,
-			ItemID:      review.ItemID,
-			Rating:      review.Rating,
-			Description: review.Description,
-			CreatedAt:   review.CreatedAt,
-			UpdatedAt:   review.UpdatedAt,
-		}
-	}
-
-	return res, nil
+	return converter.ToReviewResponseList(reviews), nil
 }
 
 func (s *Service) getReviewResponse(ctx context.Context, id string) (*dto.ReviewResponse, error) {
@@ -86,13 +74,5 @@ func (s *Service) getReviewResponse(ctx context.Context, id string) (*dto.Review
 		return nil, err
 	}
 
-	return &dto.ReviewResponse{
-		ID:          review.ID,
-		UserID:      review.UserID,
-		ItemID:      review.ItemID,
-		Rating:      review.Rating,
-		Description: review.Description,
-		CreatedAt:   review.CreatedAt,
-		UpdatedAt:   review.UpdatedAt,
-	}, nil
+	return converter.ToReviewResponse(review), nil
 } 

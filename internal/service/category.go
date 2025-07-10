@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"wowza/internal/converter"
 	"wowza/internal/dto"
 
 	"go.uber.org/zap"
@@ -14,13 +15,5 @@ func (s *Service) GetAllCategories(ctx context.Context) ([]dto.CategoryResponse,
 		return nil, err
 	}
 
-	res := make([]dto.CategoryResponse, len(categories))
-	for i, category := range categories {
-		res[i] = dto.CategoryResponse{
-			ID:   category.ID,
-			Name: category.Name,
-		}
-	}
-
-	return res, nil
+	return converter.ToCategoryResponseList(categories), nil
 } 

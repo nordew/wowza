@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"wowza/internal/converter"
 	"wowza/internal/dto"
 	"wowza/internal/entity"
 
@@ -38,16 +39,7 @@ func (s *Service) GetItemByID(ctx context.Context, id string) (*dto.ItemResponse
 		return nil, err
 	}
 
-	return &dto.ItemResponse{
-		ID:          item.ID,
-		BusinessID:  item.BusinessID,
-		Name:        item.Name,
-		Description: item.Description,
-		Price:       item.Price,
-		ImageURL:    item.ImageURL,
-		CreatedAt:   item.CreatedAt,
-		UpdatedAt:   item.UpdatedAt,
-	}, nil
+	return converter.ToItemResponse(item), nil
 }
 
 func (s *Service) UpdateItem(ctx context.Context, id string, req dto.UpdateItemRequest) (*dto.ItemResponse, error) {
@@ -87,19 +79,5 @@ func (s *Service) GetItemsByBusinessID(ctx context.Context, businessID string) (
 		return nil, err
 	}
 
-	res := make([]dto.ItemResponse, len(items))
-	for i, item := range items {
-		res[i] = dto.ItemResponse{
-			ID:          item.ID,
-			BusinessID:  item.BusinessID,
-			Name:        item.Name,
-			Description: item.Description,
-			Price:       item.Price,
-			ImageURL:    item.ImageURL,
-			CreatedAt:   item.CreatedAt,
-			UpdatedAt:   item.UpdatedAt,
-		}
-	}
-
-	return res, nil
+	return converter.ToItemResponseList(items), nil
 } 

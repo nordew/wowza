@@ -55,6 +55,9 @@ type Service interface {
 	UpdateReview(ctx context.Context, id string, req dto.UpdateReviewRequest) (*dto.ReviewResponse, error)
 	DeleteReview(ctx context.Context, id string) error
 	GetReviewsByItemID(ctx context.Context, itemID string) ([]dto.ReviewResponse, error)
+
+	// Feed
+	GetFeed(ctx context.Context, cursor string, limit int) (*dto.FeedResponse, error)
 }
 
 var errxCodeToHTTPStatus = map[errx.Code]int{
@@ -110,6 +113,7 @@ func (h *Handler) initAPI(router *fiber.App) {
 		h.initCategoryRoutes(api)
 		h.initItemRoutes(api)
 		h.initReviewRoutes(api)
+		h.initFeedRoutes(api)
 	}
 }
 

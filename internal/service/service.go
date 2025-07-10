@@ -21,6 +21,7 @@ type UserStorage interface {
 
 type PostStorage interface {
 	Create(ctx context.Context, post *entity.Post) error
+	GetForFeed(ctx context.Context, cursor time.Time, limit int) ([]entity.Post, error)
 }
 
 type WalletStorage interface {

@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"time"
 	"wowza/internal/entity"
 
 	"gorm.io/gorm"
@@ -17,6 +18,7 @@ type User interface {
 
 type Post interface {
 	Create(ctx context.Context, post *entity.Post) error
+	GetForFeed(ctx context.Context, cursor time.Time, limit int) ([]entity.Post, error)
 }
 
 type Wallet interface {

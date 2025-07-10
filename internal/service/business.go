@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"wowza/internal/converter"
 	"wowza/internal/dto"
 	"wowza/internal/entity"
 
@@ -45,18 +46,7 @@ func (s *Service) GetBusinessByID(ctx context.Context, id string) (*dto.Business
 		return nil, err
 	}
 
-	return &dto.BusinessResponse{
-		ID:          business.ID,
-		UserID:      business.UserID,
-		Name:        business.Name,
-		Description: business.Description,
-		WebsiteURL:  business.WebsiteURL,
-		Location:    business.Location,
-		Category: dto.CategoryResponse{
-			ID:   business.Category.ID,
-			Name: business.Category.Name,
-		},
-	}, nil
+	return converter.ToBusinessResponse(business), nil
 }
 
 func (s *Service) UpdateBusiness(ctx context.Context, id string, req dto.UpdateBusinessRequest) (*dto.BusinessResponse, error) {
