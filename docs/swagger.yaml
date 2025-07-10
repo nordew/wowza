@@ -1,5 +1,44 @@
 basePath: /
 definitions:
+  dto.BusinessResponse:
+    properties:
+      categories:
+        items:
+          $ref: '#/definitions/dto.CategoryResponse'
+        type: array
+      description:
+        type: string
+      id:
+        type: string
+      location:
+        type: string
+      name:
+        type: string
+      userId:
+        type: string
+      websiteUrl:
+        type: string
+    type: object
+  dto.CategoryResponse:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  dto.CreateBusinessRequest:
+    properties:
+      description:
+        type: string
+      location:
+        type: string
+      name:
+        type: string
+      websiteUrl:
+        type: string
+    required:
+    - name
+    type: object
   dto.CreateUserRequest:
     properties:
       email:
@@ -67,6 +106,17 @@ definitions:
     required:
     - code
     - phone
+    type: object
+  dto.UpdateBusinessRequest:
+    properties:
+      description:
+        type: string
+      location:
+        type: string
+      name:
+        type: string
+      websiteUrl:
+        type: string
     type: object
 host: localhost:8080
 info:
@@ -310,4 +360,235 @@ paths:
       summary: Confirm password reset
       tags:
       - password
+  /api/v1/posts:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Creates a new post
+      parameters:
+      - description: Video file
+        in: formData
+        name: video
+        required: true
+        type: file
+      - description: User ID
+        in: formData
+        name: user_id
+        required: true
+        type: string
+      - description: Post description
+        in: formData
+        name: description
+        type: string
+      - description: Video duration
+        in: formData
+        name: duration
+        required: true
+        type: number
+      - description: Post visibility
+        enum:
+        - public
+        - friends
+        - private
+        in: formData
+        name: visibility
+        required: true
+        type: string
+      - description: Hashtags for the post (use multiple fields for multiple hashtags)
+        in: formData
+        name: hashtags
+        type: string
+      - description: Tags for the post (use multiple fields for multiple tags)
+        in: formData
+        name: tags
+        type: string
+      - description: Allow comments
+        in: formData
+        name: allow_comments
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create Post
+      tags:
+      - posts
+  /businesses:
+    post:
+      consumes:
+      - application/json
+      description: Create a new business page
+      parameters:
+      - description: Business Info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateBusinessRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.BusinessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create Business
+      tags:
+      - businesses
+  /businesses/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a business page
+      parameters:
+      - description: Business ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete Business
+      tags:
+      - businesses
+    get:
+      consumes:
+      - application/json
+      description: Get a business page by its ID
+      parameters:
+      - description: Business ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BusinessResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get Business By ID
+      tags:
+      - businesses
+    put:
+      consumes:
+      - application/json
+      description: Update a business page
+      parameters:
+      - description: Business ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Business Info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateBusinessRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BusinessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update Business
+      tags:
+      - businesses
+  /categories:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all categories
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.CategoryResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get All Categories
+      tags:
+      - categories
 swagger: "2.0"

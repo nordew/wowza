@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"context"
 	"wowza/internal/entity"
 
 	"github.com/nordew/go-errx"
@@ -15,9 +16,9 @@ func NewPostStorage(db *gorm.DB) *PostStorage {
 	return &PostStorage{db: db}
 }
 
-func (s *PostStorage) Create(post *entity.Post) error {
-	if err := s.db.Create(post).Error; err != nil {
-		return errx.NewInternal().WithDescription("failed to create post")
+func (s *PostStorage) Create(ctx context.Context, post *entity.Post) error {
+	if err := s.db.WithContext(ctx).Create(post).Error; err != nil {
+		return errx.NewInternal().WithDescriptionAndCause("failed to create post", err)
 	}
 
 	return nil

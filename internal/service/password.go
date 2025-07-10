@@ -18,7 +18,7 @@ const (
 )
 
 func (s *Service) ResetPassword(ctx context.Context, req dto.ResetPasswordRequest) error {
-	_, err := s.userStorage.GetByFilter(storage.UserFilter{
+	_, err := s.userStorage.GetByFilter(ctx, storage.UserFilter{
 		Email: req.Email,
 	})
 	if err != nil {
@@ -59,7 +59,7 @@ func (s *Service) ResetPasswordConfirm(ctx context.Context, req dto.ResetPasswor
 }
 
 func (s *Service) ResetPasswordConfirmComplete(ctx context.Context, req dto.ResetPasswordConfirmCompleteRequest) error {
-	user, err := s.userStorage.GetByFilter(storage.UserFilter{
+	user, err := s.userStorage.GetByFilter(ctx, storage.UserFilter{
 		Email: req.Email,
 	})
 	if err != nil {
@@ -73,7 +73,7 @@ func (s *Service) ResetPasswordConfirmComplete(ctx context.Context, req dto.Rese
 	}
 
 	user.Password = hashedPassword
-	if err := s.userStorage.Update(user); err != nil {
+	if err := s.userStorage.Update(ctx, user); err != nil {
 		s.logger.Error("failed to update user", zap.Error(err))
 		return errx.NewInternal().WithDescription("failed to update user")
 	}

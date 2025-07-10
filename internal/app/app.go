@@ -65,6 +65,8 @@ func Run() {
 		storages.User,
 		storages.Post,
 		storages.Wallet,
+		storages.Business,
+		storages.Category,
 		zapLogger,
 		passwordHasher,
 		pasetoManager,

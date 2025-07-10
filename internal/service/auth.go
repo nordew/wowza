@@ -21,7 +21,7 @@ const (
 )
 
 func (s *Service) SignUpInit(ctx context.Context, req dto.SignUpInitRequest) error {
-	_, err := s.userStorage.GetByFilter(storage.UserFilter{Phone: req.Phone})
+	_, err := s.userStorage.GetByFilter(ctx, storage.UserFilter{Phone: req.Phone})
 	if err == nil {
 		return errx.NewConflict().WithDescription("user with this phone number already exists")
 	}
@@ -50,7 +50,7 @@ func (s *Service) SignUpInit(ctx context.Context, req dto.SignUpInitRequest) err
 }
 
 func (s *Service) SignIn(ctx context.Context, req dto.SignInRequest) (*dto.SignInResponse, error) {
-	user, err := s.userStorage.GetByFilter(storage.UserFilter{Phone: req.Phone})
+	user, err := s.userStorage.GetByFilter(ctx, storage.UserFilter{Phone: req.Phone})
 	if err != nil {
 		if errx.GetCode(err) == errx.NotFound {
 			return nil, errx.NewUnauthorized().WithDescription("invalid credentials")

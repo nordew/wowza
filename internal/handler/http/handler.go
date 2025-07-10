@@ -33,6 +33,15 @@ type Service interface {
 
 	// Post
 	CreatePost(ctx context.Context, req *dto.CreatePostRequest) error
+	
+	// Business
+	CreateBusiness(ctx context.Context, req dto.CreateBusinessRequest) (*dto.BusinessResponse, error)
+	GetBusinessByID(ctx context.Context, id string) (*dto.BusinessResponse, error)
+	UpdateBusiness(ctx context.Context, id string, req dto.UpdateBusinessRequest) (*dto.BusinessResponse, error)
+	DeleteBusiness(ctx context.Context, id string) error
+
+	// Category
+	GetAllCategories(ctx context.Context) ([]dto.CategoryResponse, error)
 }
 
 var errxCodeToHTTPStatus = map[errx.Code]int{
@@ -84,6 +93,8 @@ func (h *Handler) initAPI(router *fiber.App) {
 		h.initAuthRoutes(api)
 		h.initPasswordRoutes(api)
 		h.initPostRoutes(api)
+		h.initBusinessRoutes(api)
+		h.initCategoryRoutes(api)
 	}
 }
 

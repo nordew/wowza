@@ -1,38 +1,55 @@
 package postgres
 
 import (
+	"context"
 	"wowza/internal/entity"
 
 	"gorm.io/gorm"
 )
 
 type User interface {
-	Create(user *entity.User) error
-	CreateWithWallet(user *entity.User, wallet *entity.Wallet) error
-	GetByFilter(filter UserFilter) (*entity.User, error)
-	Update(user *entity.User) error
-	Delete(id string) error
+	Create(ctx context.Context, user *entity.User) error
+	CreateWithWallet(ctx context.Context, user *entity.User, wallet *entity.Wallet) error
+	GetByFilter(ctx context.Context, filter UserFilter) (*entity.User, error)
+	Update(ctx context.Context, user *entity.User) error
+	Delete(ctx context.Context, id string) error
 }
 
 type Post interface {
-	Create(post *entity.Post) error
+	Create(ctx context.Context, post *entity.Post) error
 }
 
 type Wallet interface {
-	GetByUserID(userID string) (*entity.Wallet, error)
-	Update(wallet *entity.Wallet) error
+	GetByUserID(ctx context.Context, userID string) (*entity.Wallet, error)
+	Update(ctx context.Context, wallet *entity.Wallet) error
+}
+
+type Business interface {
+	Create(ctx context.Context, business *entity.Business, categoryIDs []string) error
+	GetByID(ctx context.Context, id string) (*entity.Business, error)
+	Update(ctx context.Context, business *entity.Business, categoryIDs []string) error
+	Delete(ctx context.Context, id string) error
+	GetByUserID(ctx context.Context, userID string) ([]entity.Business, error)
+}
+
+type Category interface {
+	GetAll(ctx context.Context) ([]entity.Category, error)
 }
 
 type Storages struct {
-	User   User
-	Post   Post
-	Wallet Wallet
+	User     User
+	Post     Post
+	Wallet   Wallet
+	Business Business
+	Category Category
 }
 
 func NewStorages(db *gorm.DB) *Storages {
 	return &Storages{
-		User:   NewUserStorage(db),
-		Post:   NewPostStorage(db),
-		Wallet: NewWalletStorage(db),
+		User:     NewUserStorage(db),
+		Post:     NewPostStorage(db),
+		Wallet:   NewWalletStorage(db),
+		Business: NewBusinessStorage(db),
+		Category: NewCategoryStorage(db),
 	}
 } 

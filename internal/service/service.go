@@ -12,20 +12,32 @@ import (
 )
 
 type UserStorage interface {
-	Create(user *entity.User) error
-	CreateWithWallet(user *entity.User, wallet *entity.Wallet) error
-	GetByFilter(filter postgres.UserFilter) (*entity.User, error)
-	Update(user *entity.User) error
-	Delete(id string) error
+	Create(ctx context.Context, user *entity.User) error
+	CreateWithWallet(ctx context.Context, user *entity.User, wallet *entity.Wallet) error
+	GetByFilter(ctx context.Context, filter postgres.UserFilter) (*entity.User, error)
+	Update(ctx context.Context, user *entity.User) error
+	Delete(ctx context.Context, id string) error
 }
 
 type PostStorage interface {
-	Create(post *entity.Post) error
+	Create(ctx context.Context, post *entity.Post) error
 }
 
 type WalletStorage interface {
-	GetByUserID(userID string) (*entity.Wallet, error)
-	Update(wallet *entity.Wallet) error
+	GetByUserID(ctx context.Context, userID string) (*entity.Wallet, error)
+	Update(ctx context.Context, wallet *entity.Wallet) error
+}
+
+type BusinessStorage interface {
+	Create(ctx context.Context, business *entity.Business, categoryIDs []string) error
+	GetByID(ctx context.Context, id string) (*entity.Business, error)
+	Update(ctx context.Context, business *entity.Business, categoryIDs []string) error
+	Delete(ctx context.Context, id string) error
+	GetByUserID(ctx context.Context, userID string) ([]entity.Business, error)
+}
+
+type CategoryStorage interface {
+	GetAll(ctx context.Context) ([]entity.Category, error)
 }
 
 type FileStorage interface {
@@ -54,21 +66,25 @@ type Generator interface {
 }
 
 type Service struct {
-	userStorage    UserStorage
-	postStorage    PostStorage
-	walletStorage  WalletStorage
-	logger         *zap.Logger
-	passwordHasher PasswordHasher
-	pasetoManager  PasetoManager
-	cache          Cache
-	generator      Generator
-	fileStorage    FileStorage
+	userStorage     UserStorage
+	postStorage     PostStorage
+	walletStorage   WalletStorage
+	businessStorage BusinessStorage
+	categoryStorage CategoryStorage
+	logger          *zap.Logger
+	passwordHasher  PasswordHasher
+	pasetoManager   PasetoManager
+	cache           Cache
+	generator       Generator
+	fileStorage     FileStorage
 }
 
 func NewService(
 	userStorage UserStorage,
 	postStorage PostStorage,
 	walletStorage WalletStorage,
+	businessStorage BusinessStorage,
+	categoryStorage CategoryStorage,
 	logger *zap.Logger,
 	passwordHasher PasswordHasher,
 	pasetoManager PasetoManager,
@@ -77,14 +93,16 @@ func NewService(
 	fileStorage FileStorage,
 ) *Service {
 	return &Service{
-		userStorage:    userStorage,
-		postStorage:    postStorage,
-		walletStorage:  walletStorage,
-		logger:         logger,
-		passwordHasher: passwordHasher,
-		pasetoManager:  pasetoManager,
-		cache:          cache,
-		generator:      generator,
-		fileStorage:    fileStorage,
+		userStorage:     userStorage,
+		postStorage:     postStorage,
+		walletStorage:   walletStorage,
+		businessStorage: businessStorage,
+		categoryStorage: categoryStorage,
+		logger:          logger,
+		passwordHasher:  passwordHasher,
+		pasetoManager:   pasetoManager,
+		cache:           cache,
+		generator:       generator,
+		fileStorage:     fileStorage,
 	}
 }

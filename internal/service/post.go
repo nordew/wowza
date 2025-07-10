@@ -25,7 +25,7 @@ func (s *Service) CreatePost(ctx context.Context, req *dto.CreatePostRequest) er
 		return err
 	}
 
-	if err := s.postStorage.Create(post); err != nil {
+	if err := s.postStorage.Create(ctx, post); err != nil {
 		s.logger.Error("failed to create post in storage", zap.Error(err))
 		return err
 	}
