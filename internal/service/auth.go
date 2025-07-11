@@ -6,7 +6,8 @@ import (
 	"fmt"
 	"time"
 	"wowza/internal/dto"
-	storage "wowza/internal/storage/postgres"
+	"wowza/internal/storage"
+	storage_postgres "wowza/internal/storage/postgres"
 	"wowza/pkg/generator"
 
 	"github.com/nordew/go-errx"
@@ -20,8 +21,28 @@ const (
 	verificationStatusCacheTTL = 10 * time.Minute
 )
 
-func (s *Service) SignUpInit(ctx context.Context, req dto.SignUpInitRequest) error {
-	_, err := s.userStorage.GetByFilter(ctx, storage.UserFilter{Phone: req.Phone})
+type AuthService struct {
+	userStorage   storage.User
+	logger        *zap.Logger
+	pasetoManager PasetoManager
+	cache         Cache
+	generator     Generator
+	passwordHasher PasswordHasher
+}
+
+func NewAuthService(deps Dependencies) *AuthService {
+	return &AuthService{
+		userStorage:    deps.Storages.User,
+		logger:         deps.Logger,
+		pasetoManager:  deps.PasetoManager,
+		cache:          deps.Cache,
+		generator:      deps.Generator,
+		passwordHasher: deps.PasswordHasher,
+	}
+}
+
+func (s *AuthService) SignUpInit(ctx context.Context, req dto.SignUpInitRequest) error {
+	_, err := s.userStorage.GetByFilter(ctx, storage_postgres.UserFilter{Phone: req.Phone})
 	if err == nil {
 		return errx.NewConflict().WithDescription("user with this phone number already exists")
 	}
@@ -49,8 +70,8 @@ func (s *Service) SignUpInit(ctx context.Context, req dto.SignUpInitRequest) err
 	return nil
 }
 
-func (s *Service) SignIn(ctx context.Context, req dto.SignInRequest) (*dto.SignInResponse, error) {
-	user, err := s.userStorage.GetByFilter(ctx, storage.UserFilter{Phone: req.Phone})
+func (s *AuthService) SignIn(ctx context.Context, req dto.SignInRequest) (*dto.SignInResponse, error) {
+	user, err := s.userStorage.GetByFilter(ctx, storage_postgres.UserFilter{Phone: req.Phone})
 	if err != nil {
 		if errx.GetCode(err) == errx.NotFound {
 			return nil, errx.NewUnauthorized().WithDescription("invalid credentials")
@@ -79,7 +100,7 @@ func (s *Service) SignIn(ctx context.Context, req dto.SignInRequest) (*dto.SignI
 	}, nil
 }
 
-func (s *Service) SignUpVerify(ctx context.Context, req dto.SignUpVerifyRequest) error {
+func (s *AuthService) SignUpVerify(ctx context.Context, req dto.SignUpVerifyRequest) error {
 	var cachedCode string
 	cacheKey := verificationCodeKey(req.Phone)
 

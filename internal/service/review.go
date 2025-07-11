@@ -5,12 +5,25 @@ import (
 	"wowza/internal/converter"
 	"wowza/internal/dto"
 	"wowza/internal/entity"
+	"wowza/internal/storage"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
-func (s *Service) CreateReview(ctx context.Context, req dto.CreateReviewRequest) (*dto.ReviewResponse, error) {
+type ReviewService struct {
+	reviewStorage storage.Review
+	logger        *zap.Logger
+}
+
+func NewReviewService(deps Dependencies) *ReviewService {
+	return &ReviewService{
+		reviewStorage: deps.Storages.Review,
+		logger:        deps.Logger,
+	}
+}
+
+func (s *ReviewService) CreateReview(ctx context.Context, req dto.CreateReviewRequest) (*dto.ReviewResponse, error) {
 	userID, ok := ctx.Value("userID").(string)
 	if !ok {
 		s.logger.Error("failed to get user id from context")
@@ -37,7 +50,7 @@ func (s *Service) CreateReview(ctx context.Context, req dto.CreateReviewRequest)
 	return s.getReviewResponse(ctx, review.ID)
 }
 
-func (s *Service) UpdateReview(ctx context.Context, id string, req dto.UpdateReviewRequest) (*dto.ReviewResponse, error) {
+func (s *ReviewService) UpdateReview(ctx context.Context, id string, req dto.UpdateReviewRequest) (*dto.ReviewResponse, error) {
 	review, err := s.reviewStorage.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -53,11 +66,11 @@ func (s *Service) UpdateReview(ctx context.Context, id string, req dto.UpdateRev
 	return s.getReviewResponse(ctx, id)
 }
 
-func (s *Service) DeleteReview(ctx context.Context, id string) error {
+func (s *ReviewService) DeleteReview(ctx context.Context, id string) error {
 	return s.reviewStorage.Delete(ctx, id)
 }
 
-func (s *Service) GetReviewsByItemID(ctx context.Context, itemID string) ([]dto.ReviewResponse, error) {
+func (s *ReviewService) GetReviewsByItemID(ctx context.Context, itemID string) ([]dto.ReviewResponse, error) {
 	reviews, err := s.reviewStorage.GetByItemID(ctx, itemID)
 	if err != nil {
 		s.logger.Error("failed to get reviews by item id", zap.Error(err))
@@ -67,7 +80,7 @@ func (s *Service) GetReviewsByItemID(ctx context.Context, itemID string) ([]dto.
 	return converter.ToReviewResponseList(reviews), nil
 }
 
-func (s *Service) getReviewResponse(ctx context.Context, id string) (*dto.ReviewResponse, error) {
+func (s *ReviewService) getReviewResponse(ctx context.Context, id string) (*dto.ReviewResponse, error) {
 	review, err := s.reviewStorage.GetByID(ctx, id)
 	if err != nil {
 		s.logger.Error("failed to get review by id", zap.Error(err))

@@ -7,13 +7,28 @@ import (
 	"path/filepath"
 	"wowza/internal/dto"
 	"wowza/internal/entity"
+	"wowza/internal/storage"
 
 	"github.com/google/uuid"
 	"github.com/nordew/go-errx"
 	"go.uber.org/zap"
 )
 
-func (s *Service) CreatePost(ctx context.Context, req *dto.CreatePostRequest) error {
+type PostService struct {
+	postStorage storage.Post
+	fileStorage storage.File
+	logger      *zap.Logger
+}
+
+func NewPostService(deps Dependencies) *PostService {
+	return &PostService{
+		postStorage: deps.Storages.Post,
+		fileStorage: deps.Storages.File,
+		logger:      deps.Logger,
+	}
+}
+
+func (s *PostService) CreatePost(ctx context.Context, req *dto.CreatePostRequest) error {
 	videoURL, err := s.uploadPostVideo(ctx, req.FileHeader)
 	if err != nil {
 		return err
@@ -33,7 +48,7 @@ func (s *Service) CreatePost(ctx context.Context, req *dto.CreatePostRequest) er
 	return nil
 }
 
-func (s *Service) uploadPostVideo(ctx context.Context, fileHeader *multipart.FileHeader) (string, error) {
+func (s *PostService) uploadPostVideo(ctx context.Context, fileHeader *multipart.FileHeader) (string, error) {
 	file, err := fileHeader.Open()
 	if err != nil {
 		s.logger.Error("failed to open file header", zap.Error(err))

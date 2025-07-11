@@ -4,6 +4,7 @@ import (
 	"context"
 	"wowza/internal/dto"
 	"wowza/internal/entity"
+	"wowza/internal/storage"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -14,7 +15,21 @@ const (
 	initialWalletCurrency = "USD"
 )
 
-func (s *Service) CreateUser(ctx context.Context, req dto.CreateUserRequest) (*entity.User, error) {
+type UserService struct {
+	userStorage    storage.User
+	logger         *zap.Logger
+	passwordHasher PasswordHasher
+}
+
+func NewUserService(deps Dependencies) *UserService {
+	return &UserService{
+		userStorage:    deps.Storages.User,
+		logger:         deps.Logger,
+		passwordHasher: deps.PasswordHasher,
+	}
+}
+
+func (s *UserService) CreateUser(ctx context.Context, req dto.CreateUserRequest) (*entity.User, error) {
 	user, wallet, err := s.newUserWithWallet(req)
 	if err != nil {
 		s.logger.Error("failed to create user", zap.Error(err))
@@ -29,7 +44,7 @@ func (s *Service) CreateUser(ctx context.Context, req dto.CreateUserRequest) (*e
 	return user, nil
 }
 
-func (s *Service) newUserWithWallet(req dto.CreateUserRequest) (*entity.User, *entity.Wallet, error) {
+func (s *UserService) newUserWithWallet(req dto.CreateUserRequest) (*entity.User, *entity.Wallet, error) {
 	userID := uuid.New().String()
 	walletID := uuid.New().String()
 

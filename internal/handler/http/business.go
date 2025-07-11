@@ -43,7 +43,7 @@ func (h *Handler) createBusiness(c fiber.Ctx) error {
 		return h.handleError(c, err)
 	}
 
-	business, err := h.service.(BusinessService).CreateBusiness(ctx, req)
+	business, err := h.services.Business.CreateBusiness(ctx, req)
 	if err != nil {
 		return h.handleError(c, err)
 	}
@@ -67,7 +67,7 @@ func (h *Handler) getBusinessByID(c fiber.Ctx) error {
 
 	id := c.Params("id")
 
-	business, err := h.service.(BusinessService).GetBusinessByID(ctx, id)
+	business, err := h.services.Business.GetBusinessByID(ctx, id)
 	if err != nil {
 		return h.handleError(c, err)
 	}
@@ -98,7 +98,7 @@ func (h *Handler) updateBusiness(c fiber.Ctx) error {
 		return h.handleError(c, err)
 	}
 
-	business, err := h.service.(BusinessService).UpdateBusiness(ctx, id, req)
+	business, err := h.services.Business.UpdateBusiness(ctx, id, req)
 	if err != nil {
 		return h.handleError(c, err)
 	}
@@ -122,7 +122,7 @@ func (h *Handler) deleteBusiness(c fiber.Ctx) error {
 
 	id := c.Params("id")
 
-	if err := h.service.(BusinessService).DeleteBusiness(ctx, id); err != nil {
+	if err := h.services.Business.DeleteBusiness(ctx, id); err != nil {
 		return h.handleError(c, err)
 	}
 

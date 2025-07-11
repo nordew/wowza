@@ -40,7 +40,7 @@ func (h *Handler) signUpInit(c fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), h.ctxTimeout)
 	defer cancel()
 
-	if err := h.service.SignUpInit(ctx, req); err != nil {
+	if err := h.services.Auth.SignUpInit(ctx, req); err != nil {
 		return h.handleError(c, err)
 	}
 
@@ -66,7 +66,7 @@ func (h *Handler) signUpVerify(c fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), h.ctxTimeout)
 	defer cancel()
 
-	if err := h.service.SignUpVerify(ctx, req); err != nil {
+	if err := h.services.Auth.SignUpVerify(ctx, req); err != nil {
 		return h.handleError(c, err)
 	}
 
@@ -92,7 +92,7 @@ func (h *Handler) signUpComplete(c fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), h.ctxTimeout)
 	defer cancel()
 
-	_, err := h.service.CreateUser(ctx, req)
+	_, err := h.services.User.CreateUser(ctx, req)
 	if err != nil {
 		return h.handleError(c, err)
 	}
@@ -120,7 +120,7 @@ func (h *Handler) signIn(c fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), h.ctxTimeout)
 	defer cancel()
 
-	res, err := h.service.SignIn(ctx, req)
+	res, err := h.services.Auth.SignIn(ctx, req)
 	if err != nil {
 		return h.handleError(c, err)
 	}

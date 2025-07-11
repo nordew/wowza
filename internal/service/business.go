@@ -5,12 +5,25 @@ import (
 	"wowza/internal/converter"
 	"wowza/internal/dto"
 	"wowza/internal/entity"
+	"wowza/internal/storage"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
-func (s *Service) CreateBusiness(ctx context.Context, req dto.CreateBusinessRequest) (*dto.BusinessResponse, error) {
+type BusinessService struct {
+	businessStorage storage.Business
+	logger          *zap.Logger
+}
+
+func NewBusinessService(deps Dependencies) *BusinessService {
+	return &BusinessService{
+		businessStorage: deps.Storages.Business,
+		logger:          deps.Logger,
+	}
+}
+
+func (s *BusinessService) CreateBusiness(ctx context.Context, req dto.CreateBusinessRequest) (*dto.BusinessResponse, error) {
 	userID, ok := ctx.Value("userID").(string)
 	if !ok {
 		s.logger.Error("failed to get user id from context")
@@ -39,7 +52,7 @@ func (s *Service) CreateBusiness(ctx context.Context, req dto.CreateBusinessRequ
 	return s.GetBusinessByID(ctx, business.ID)
 }
 
-func (s *Service) GetBusinessByID(ctx context.Context, id string) (*dto.BusinessResponse, error) {
+func (s *BusinessService) GetBusinessByID(ctx context.Context, id string) (*dto.BusinessResponse, error) {
 	business, err := s.businessStorage.GetByID(ctx, id)
 	if err != nil {
 		s.logger.Error("failed to get business by id", zap.Error(err))
@@ -49,7 +62,7 @@ func (s *Service) GetBusinessByID(ctx context.Context, id string) (*dto.Business
 	return converter.ToBusinessResponse(business), nil
 }
 
-func (s *Service) UpdateBusiness(ctx context.Context, id string, req dto.UpdateBusinessRequest) (*dto.BusinessResponse, error) {
+func (s *BusinessService) UpdateBusiness(ctx context.Context, id string, req dto.UpdateBusinessRequest) (*dto.BusinessResponse, error) {
 	business, err := s.businessStorage.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -78,7 +91,7 @@ func (s *Service) UpdateBusiness(ctx context.Context, id string, req dto.UpdateB
 	return s.GetBusinessByID(ctx, id)
 }
 
-func (s *Service) DeleteBusiness(ctx context.Context, id string) error {
+func (s *BusinessService) DeleteBusiness(ctx context.Context, id string) error {
 	return s.businessStorage.Delete(ctx, id)
 }
 

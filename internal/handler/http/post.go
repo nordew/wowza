@@ -46,7 +46,7 @@ func (h *Handler) createPost(c fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), h.ctxTimeout)
 	defer cancel()
 
-	if err := h.service.CreatePost(ctx, &req); err != nil {
+	if err := h.services.Post.CreatePost(ctx, &req); err != nil {
 		return h.handleError(c, err)
 	}
 

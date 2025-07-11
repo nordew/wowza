@@ -36,7 +36,7 @@ func (h *Handler) getFeed(c fiber.Ctx) error {
 	cursor := c.Query("cursor")
 	limit, _ := strconv.Atoi(c.Query("limit"))
 
-	feed, err := h.service.GetFeed(ctx, cursor, limit)
+	feed, err := h.services.Feed.GetFeed(ctx, cursor, limit)
 	if err != nil {
 		return h.handleError(c, err)
 	}

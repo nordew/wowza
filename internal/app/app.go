@@ -14,8 +14,7 @@ import (
 	"wowza/internal/config"
 	httpHandler "wowza/internal/handler/http"
 	"wowza/internal/service"
-	minioStorage "wowza/internal/storage/minio"
-	storage "wowza/internal/storage/postgres"
+	"wowza/internal/storage"
 
 	"wowza/pkg/db/dragonfly"
 	"wowza/pkg/db/minio"
@@ -50,36 +49,37 @@ func Run() {
 		zapLogger.Fatal("failed to connect to dragonfly", zap.Error(err))
 	}
 
-	storages := storage.NewStorages(pgsql)
-	cache := cache.New(dfly)
-	passwordHasher := hash.New()
-	pasetoManager := paseto.NewManager([]byte(cfg.Paseto.SymmetricKey))
-	generator := generator.New()
 	minioClient, err := minio.New(cfg.Minio)
 	if err != nil {
 		zapLogger.Fatal("failed to connect to minio", zap.Error(err))
 	}
-	fileStorage := minioStorage.NewFileStorage(minioClient, cfg.Minio)
 
-	service := service.NewService(
-		storages.User,
-		storages.Post,
-		storages.Wallet,
-		storages.Business,
-		storages.Category,
-		storages.Item,
-		storages.Review,
-		zapLogger,
-		passwordHasher,
-		pasetoManager,
-		cache,
-		generator,
-		fileStorage,
-	)
+	// Create unified storages
+	storages := storage.NewStorages(storage.Dependencies{
+		DB:          pgsql,
+		MinioClient: minioClient,
+		MinioConfig: cfg.Minio,
+	})
+
+	// Create external dependencies
+	cache := cache.New(dfly)
+	passwordHasher := hash.New()
+	pasetoManager := paseto.NewManager([]byte(cfg.Paseto.SymmetricKey))
+	generator := generator.New()
+
+	// Create unified services
+	services := service.NewServices(service.Dependencies{
+		Storages:       storages,
+		Logger:         zapLogger,
+		PasswordHasher: passwordHasher,
+		PasetoManager:  pasetoManager,
+		Cache:          cache,
+		Generator:      generator,
+	})
 
 	handler := httpHandler.NewHandler(
 		zapLogger,
-		service,
+		services,
 		cfg.App.DBTimeout,
 	)
 	server := handler.InitRoutes()

@@ -30,7 +30,7 @@ func (h *Handler) getAllCategories(c fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(c.Context(), h.ctxTimeout)
 	defer cancel()
 
-	categories, err := h.service.(CategoryService).GetAllCategories(ctx)
+	categories, err := h.services.Category.GetAllCategories(ctx)
 	if err != nil {
 		return h.handleError(c, err)
 	}

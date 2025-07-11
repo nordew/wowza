@@ -35,7 +35,7 @@ func (h *Handler) resetPassword(c fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), h.ctxTimeout)
 	defer cancel()
 
-	if err := h.service.ResetPassword(ctx, req); err != nil {
+	if err := h.services.Password.ResetPassword(ctx, req); err != nil {
 		return h.handleError(c, err)
 	}
 
@@ -61,7 +61,7 @@ func (h *Handler) resetPasswordConfirm(c fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), h.ctxTimeout)
 	defer cancel()
 
-	if err := h.service.ResetPasswordConfirm(ctx, req); err != nil {
+	if err := h.services.Password.ResetPasswordConfirm(ctx, req); err != nil {
 		return h.handleError(c, err)
 	}
 
@@ -87,7 +87,7 @@ func (h *Handler) resetPasswordConfirmComplete(c fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), h.ctxTimeout)
 	defer cancel()
 
-	if err := h.service.ResetPasswordConfirmComplete(ctx, req); err != nil {
+	if err := h.services.Password.ResetPasswordConfirmComplete(ctx, req); err != nil {
 		return h.handleError(c, err)
 	}
 

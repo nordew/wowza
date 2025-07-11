@@ -37,7 +37,7 @@ func (h *Handler) createReview(c fiber.Ctx) error {
 		return h.handleError(c, err)
 	}
 
-	review, err := h.service.(ReviewService).CreateReview(ctx, req)
+	review, err := h.services.Review.CreateReview(ctx, req)
 	if err != nil {
 		return h.handleError(c, err)
 	}
@@ -56,7 +56,7 @@ func (h *Handler) updateReview(c fiber.Ctx) error {
 		return h.handleError(c, err)
 	}
 
-	review, err := h.service.(ReviewService).UpdateReview(ctx, id, req)
+	review, err := h.services.Review.UpdateReview(ctx, id, req)
 	if err != nil {
 		return h.handleError(c, err)
 	}
@@ -70,7 +70,7 @@ func (h *Handler) deleteReview(c fiber.Ctx) error {
 
 	id := c.Params("id")
 
-	if err := h.service.(ReviewService).DeleteReview(ctx, id); err != nil {
+	if err := h.services.Review.DeleteReview(ctx, id); err != nil {
 		return h.handleError(c, err)
 	}
 
@@ -83,7 +83,7 @@ func (h *Handler) getReviewsByItemID(c fiber.Ctx) error {
 
 	itemID := c.Params("itemId")
 
-	reviews, err := h.service.(ReviewService).GetReviewsByItemID(ctx, itemID)
+	reviews, err := h.services.Review.GetReviewsByItemID(ctx, itemID)
 	if err != nil {
 		return h.handleError(c, err)
 	}

@@ -7,6 +7,7 @@ import (
 	"wowza/internal/converter"
 	"wowza/internal/dto"
 	"wowza/internal/entity"
+	"wowza/internal/storage"
 
 	"go.uber.org/zap"
 )
@@ -16,25 +17,37 @@ const (
 	maxFeedLimit     = 50
 )
 
-func (s *Service) GetFeed(ctx context.Context, req dto.GetFeedRequest) (dto.GetFeedResponse, error) {
-	cursor, err := parseCursor(req.CursorStr)
+type FeedService struct {
+	postStorage storage.Post
+	logger      *zap.Logger
+}
+
+func NewFeedService(deps Dependencies) *FeedService {
+	return &FeedService{
+		postStorage: deps.Storages.Post,
+		logger:      deps.Logger,
+	}
+}
+
+func (s *FeedService) GetFeed(ctx context.Context, cursor string, limit int) (*dto.FeedResponse, error) {
+	parsedCursor, err := parseCursor(cursor)
 	if err != nil {
 		s.logger.Error("failed to parse feed cursor", zap.Error(err))
-		return dto.GetFeedResponse{}, err
+		return nil, err
 	}
 
-	limit := normalizeLimit(req.Limit)
+	normalizedLimit := normalizeLimit(limit)
 
-	posts, err := s.postStorage.GetForFeed(ctx, cursor, limit)
+	posts, err := s.postStorage.GetForFeed(ctx, parsedCursor, normalizedLimit)
 	if err != nil {
 		s.logger.Error("failed to get posts for feed", zap.Error(err))
-		return dto.GetFeedResponse{}, err
+		return nil, err
 	}
 
 	postDTOs := converter.ToPostResponseList(posts)
-	nextCursor := calculateNextCursor(posts, limit)
+	nextCursor := calculateNextCursor(posts, normalizedLimit)
 
-	return dto.GetFeedResponse{
+	return &dto.FeedResponse{
 		Posts:      postDTOs,
 		NextCursor: nextCursor,
 	}, nil

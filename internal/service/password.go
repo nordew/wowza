@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"time"
 	"wowza/internal/dto"
-	storage "wowza/internal/storage/postgres"
+	"wowza/internal/storage"
+	storage_postgres "wowza/internal/storage/postgres"
 	"wowza/pkg/generator"
 
 	"github.com/nordew/go-errx"
@@ -17,8 +18,26 @@ const (
 	passwordResetCodeCacheTTL   = 5 * time.Minute
 )
 
-func (s *Service) ResetPassword(ctx context.Context, req dto.ResetPasswordRequest) error {
-	_, err := s.userStorage.GetByFilter(ctx, storage.UserFilter{
+type PasswordService struct {
+	userStorage    storage.User
+	logger         *zap.Logger
+	passwordHasher PasswordHasher
+	cache          Cache
+	generator      Generator
+}
+
+func NewPasswordService(deps Dependencies) *PasswordService {
+	return &PasswordService{
+		userStorage:    deps.Storages.User,
+		logger:         deps.Logger,
+		passwordHasher: deps.PasswordHasher,
+		cache:          deps.Cache,
+		generator:      deps.Generator,
+	}
+}
+
+func (s *PasswordService) ResetPassword(ctx context.Context, req dto.ResetPasswordRequest) error {
+	_, err := s.userStorage.GetByFilter(ctx, storage_postgres.UserFilter{
 		Email: req.Email,
 	})
 	if err != nil {
@@ -43,7 +62,7 @@ func (s *Service) ResetPassword(ctx context.Context, req dto.ResetPasswordReques
 	return nil
 }
 
-func (s *Service) ResetPasswordConfirm(ctx context.Context, req dto.ResetPasswordConfirmRequest) error {
+func (s *PasswordService) ResetPasswordConfirm(ctx context.Context, req dto.ResetPasswordConfirmRequest) error {
 	var cachedCode string
 	cacheKey := passwordResetCodeKey(req.Email)
 
@@ -58,8 +77,8 @@ func (s *Service) ResetPasswordConfirm(ctx context.Context, req dto.ResetPasswor
 	return nil
 }
 
-func (s *Service) ResetPasswordConfirmComplete(ctx context.Context, req dto.ResetPasswordConfirmCompleteRequest) error {
-	user, err := s.userStorage.GetByFilter(ctx, storage.UserFilter{
+func (s *PasswordService) ResetPasswordConfirmComplete(ctx context.Context, req dto.ResetPasswordConfirmCompleteRequest) error {
+	user, err := s.userStorage.GetByFilter(ctx, storage_postgres.UserFilter{
 		Email: req.Email,
 	})
 	if err != nil {
@@ -80,7 +99,6 @@ func (s *Service) ResetPasswordConfirmComplete(ctx context.Context, req dto.Rese
 
 	return nil
 }
-
 
 func passwordResetCodeKey(email string) string {
 	return fmt.Sprintf("password_reset_code:%s", email)

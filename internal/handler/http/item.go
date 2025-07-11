@@ -40,7 +40,7 @@ func (h *Handler) createItem(c fiber.Ctx) error {
 		return h.handleError(c, err)
 	}
 
-	item, err := h.service.(ItemService).CreateItem(ctx, req)
+	item, err := h.services.Item.CreateItem(ctx, req)
 	if err != nil {
 		return h.handleError(c, err)
 	}
@@ -54,7 +54,7 @@ func (h *Handler) getItemByID(c fiber.Ctx) error {
 
 	id := c.Params("id")
 
-	item, err := h.service.(ItemService).GetItemByID(ctx, id)
+	item, err := h.services.Item.GetItemByID(ctx, id)
 	if err != nil {
 		return h.handleError(c, err)
 	}
@@ -73,7 +73,7 @@ func (h *Handler) updateItem(c fiber.Ctx) error {
 		return h.handleError(c, err)
 	}
 
-	item, err := h.service.(ItemService).UpdateItem(ctx, id, req)
+	item, err := h.services.Item.UpdateItem(ctx, id, req)
 	if err != nil {
 		return h.handleError(c, err)
 	}
@@ -87,7 +87,7 @@ func (h *Handler) deleteItem(c fiber.Ctx) error {
 
 	id := c.Params("id")
 
-	if err := h.service.(ItemService).DeleteItem(ctx, id); err != nil {
+	if err := h.services.Item.DeleteItem(ctx, id); err != nil {
 		return h.handleError(c, err)
 	}
 
@@ -100,7 +100,7 @@ func (h *Handler) getItemsByBusinessID(c fiber.Ctx) error {
 
 	businessID := c.Params("businessId")
 
-	items, err := h.service.(ItemService).GetItemsByBusinessID(ctx, businessID)
+	items, err := h.services.Item.GetItemsByBusinessID(ctx, businessID)
 	if err != nil {
 		return h.handleError(c, err)
 	}
